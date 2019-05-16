@@ -49,8 +49,19 @@ CSNSpec2Exporter >> protectString: aString [
 ]
 
 { #category : #api }
+CSNSpec2Exporter >> recursiveLocalWidgetNameOfBLBusinessPage: aBLBuisinessPage [
+	^ (self recursiveLocalWidgetOfBLBusinessPage: aBLBuisinessPage) collect: [ :widget | self computeAcceptedNameForVariableFrom: widget name ]
+]
+
+{ #category : #api }
 CSNSpec2Exporter >> recursiveLocalWidgetNameOfPage: aBLPage [
 	^ (self recursiveLocalWidgetOfPage: aBLPage) reject: #isNil thenCollect: [:widget | self computeAcceptedNameForVariableFrom: widget name ]
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> recursiveLocalWidgetOfBLBusinessPage: aBLBusinessPage [
+	^ (aBLBusinessPage widgets collect: #localWidgets) flattened
+		reject: [ :widget | widget isKindOf: CSNUIPanel ]
 ]
 
 { #category : #api }
@@ -117,11 +128,47 @@ CSNSpec2Exporter >> visitPage: aBLPage [
 			'defaultSpec
 	<spec: #default>
 	^ ' ,
-				({aBLPage widgets . aBLPage businessPage} flatten flatCollect: [ :widget | ('' , (self visit: widget) removeSuffix: ';') "ifEmpty: [ '' ] ifNotEmpty: [ :result | result]" ]).
+				({aBLPage widgets . aBLPage businessPage} flatten flatCollect: [ :widget | ('' , (self visit: widget) removeSuffix: ';') ]).
 	class compile: 'title' , String crlf , String tab , '^ ' , ('''' , (self protectString: (aBLPage title ifNil: [ '' ])) , '''').
 	class instanceVariables do: [ :each | self createAccessorForVariable: each inClass: class ].
 	initializeWidgetsExporter exportInitializeWidgetOfPage: aBLPage inClass: class.
 	^ self visitWidget: aBLPage
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitPageMetier: aBLBusinessPage [
+	| class |
+	class := ComposablePresenter
+		subclass: self prefix , (aBLBusinessPage name capitalized , aBLBusinessPage mooseID asString)
+		instanceVariableNames:
+			''
+				,
+					((self recursiveLocalWidgetNameOfBLBusinessPage: aBLBusinessPage)
+						flatCollect: [ :name | name uncapitalized , ' ' ])
+		classVariableNames: ''
+		package: self exportedPackageName , '-Components'.
+	class class
+		compile:
+			'open
+	<example>
+	^ self new openWithSpec'.
+	class class
+		compile:
+			'defaultSpec
+	<spec: #default>
+	^ ', 	(aBLBusinessPage widgets
+						flatCollect: [ :widget | 
+							('' , (self visit: widget) removeSuffix: ';')]).
+	class instanceVariables
+		do: [ :each | self createAccessorForVariable: each inClass: class ].
+	class
+		compile:
+			'title' , String crlf , String tab , '^ '
+				, ('''' , (self protectString: (aBLBusinessPage title ifNil: [ '' ])) , '''').
+	initializeWidgetsExporter
+		exportInitializeWidgetOfBusinessPage: aBLBusinessPage
+		inClass: class.
+	^ self visitWidget: aBLBusinessPage
 ]
 
 { #category : #api }
@@ -180,5 +227,5 @@ CSNSpec2Exporter >> visitUIVerticalLayout: aBLUIVerticalLayout [
 
 { #category : #api }
 CSNSpec2Exporter >> visitWidget: aBLWidget [
-	^ '#' , (self computeAcceptedNameForVariableFrom: aBLWidget name uncapitalized) , ' ' , (aBLWidget attributes flatCollect: [ :attribute | self visit: attribute ])
+	^ '#' , (self computeAcceptedNameForVariableFrom: aBLWidget name uncapitalized)
 ]
