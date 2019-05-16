@@ -144,7 +144,7 @@ CSNSpec2InitializeWidgetsExporter >> visitUIParagraph: aBLUIParagraph [
 
 { #category : #visiting }
 CSNSpec2InitializeWidgetsExporter >> visitUIPlaceholder: aBLUIPlaceholder [
-	^ 'ghostText: ''' , (self protectString: aBLUIPlaceholder attributeValue) , ''';'
+	^ 'placeholder: ''' , (self protectString: aBLUIPlaceholder attributeValue) , ''';'
 ]
 
 { #category : #visiting }

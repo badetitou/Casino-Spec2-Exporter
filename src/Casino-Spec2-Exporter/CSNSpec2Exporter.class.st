@@ -142,7 +142,10 @@ CSNSpec2Exporter >> visitUIAbsoluteWidth: aBLUIAbsoluteWidth [
 CSNSpec2Exporter >> visitUIContainer: aBLUIContainer [
 	^ (aBLUIContainer layout
 		ifNotNil: [ self visit: aBLUIContainer layout ]
-		ifNil: [ self visitInsideAContainerWithLocalVariable: ('row', (self computeAcceptedNameForVariableFrom: aBLUIContainer mooseName , aBLUIContainer mooseID asString) ) andContainedWidgets: aBLUIContainer widgets "aBLUIContainer widgets flatCollect: [ :widget | '' , (self visit: widget) , ';' ]" ])
+		ifNil: [ 
+			self visitWidget: aBLUIContainer
+			
+			"self visitInsideAContainerWithLocalVariable: ('row', (self computeAcceptedNameForVariableFrom: aBLUIContainer mooseName , aBLUIContainer mooseID asString) ) andContainedWidgets: aBLUIContainer widgets" "aBLUIContainer widgets flatCollect: [ :widget | '' , (self visit: widget) , ';' ]" ])
 		,
 			(aBLUIContainer attributes
 				ifEmpty: [ '' ]
