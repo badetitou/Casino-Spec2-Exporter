@@ -166,7 +166,7 @@ CSNSpec2InitializeWidgetsExporter >> visitUITitle: aBLUITitle [
 
 { #category : #visiting }
 CSNSpec2InitializeWidgetsExporter >> visitUITree: aBLUITree [
-	^  (self computeWidgetName: aBLUITree) , ' := self newTree '
+	^  (self computeWidgetName: aBLUITree) , ' := self newTable '
 		, (aBLUITree attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 

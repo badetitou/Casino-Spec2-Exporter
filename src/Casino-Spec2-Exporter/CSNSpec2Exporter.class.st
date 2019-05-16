@@ -59,6 +59,11 @@ CSNSpec2Exporter >> recursiveLocalWidgetOfPage: aBLPage [
 ]
 
 { #category : #api }
+CSNSpec2Exporter >> visitAttribute: aBLAttribute [
+	^ ''
+]
+
+{ #category : #api }
 CSNSpec2Exporter >> visitCell: aBLCell [
  	^ aBLCell widget ifNil: [ '' ] ifNotNil: [ ' add: ', (self visit: aBLCell widget) ] 
 ]
@@ -120,6 +125,20 @@ CSNSpec2Exporter >> visitPage: aBLPage [
 ]
 
 { #category : #api }
+CSNSpec2Exporter >> visitUIAbsoluteHeight: aBLUIAbsoluteHeight [
+	^ aBLUIAbsoluteHeight attributeValue onlyNumbers
+		ifEmpty: [ self visitAttribute: aBLUIAbsoluteHeight ]
+		ifNotEmpty: [ aBLUIAbsoluteHeight name , ': ' , aBLUIAbsoluteHeight attributeValue onlyNumbers ]
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitUIAbsoluteWidth: aBLUIAbsoluteWidth [
+	^ aBLUIAbsoluteWidth attributeValue onlyNumbers
+		ifEmpty: [ self visitAttribute: aBLUIAbsoluteWidth ]
+		ifNotEmpty: [ aBLUIAbsoluteWidth name , ': ' , aBLUIAbsoluteWidth attributeValue onlyNumbers]
+]
+
+{ #category : #api }
 CSNSpec2Exporter >> visitUIContainer: aBLUIContainer [
 	^ (aBLUIContainer layout
 		ifNotNil: [ self visit: aBLUIContainer layout ]
@@ -127,12 +146,11 @@ CSNSpec2Exporter >> visitUIContainer: aBLUIContainer [
 		,
 			(aBLUIContainer attributes
 				ifEmpty: [ '' ]
-				ifNotEmpty: [ :attributes | 
-					(attributes flatCollect: [ :attribute | self visit: attribute ])
-						ifNotEmpty: [ :od | 
-							od
-								removeLast;
-								yourself ] ])
+				ifNotEmpty: [ :attributes |
+						| localConstraintVariable |
+						localConstraintVariable := 'constraint', aBLUIContainer mooseID asString.
+					' withConstraints: [ :', localConstraintVariable , ' | ',  
+					(attributes flatCollect: [ :attribute | localConstraintVariable, ' ' ,  (self visit: attribute), '.' ]), ' ] ' ])
 ]
 
 { #category : #api }
