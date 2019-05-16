@@ -123,12 +123,16 @@ CSNSpec2Exporter >> visitPage: aBLPage [
 			'open
 	<example>
 	^ self new openWithSpec'.
+	
 	class class
 		compile:
 			'defaultSpec
-	<spec: #default>
-	^ ' ,
+	<spec: #default>', ({aBLPage widgets . aBLPage businessPage} flatten ifNotEmpty: [ String cr, ' ^ ', String cr ] ifEmpty: ['']),
 				({aBLPage widgets . aBLPage businessPage} flatten flatCollect: [ :widget | ('' , (self visit: widget) removeSuffix: ';') ]).
+				
+				
+				
+				
 	class compile: 'title' , String crlf , String tab , '^ ' , ('''' , (self protectString: (aBLPage title ifNil: [ '' ])) , '''').
 	class instanceVariables do: [ :each | self createAccessorForVariable: each inClass: class ].
 	initializeWidgetsExporter exportInitializeWidgetOfPage: aBLPage inClass: class.
@@ -155,8 +159,8 @@ CSNSpec2Exporter >> visitPageMetier: aBLBusinessPage [
 	class class
 		compile:
 			'defaultSpec
-	<spec: #default>
-	^ ', 	(aBLBusinessPage widgets
+	<spec: #default>' , (aBLBusinessPage widgets ifEmpty: [  '' ] ifNotEmpty: [ String cr , ' ^ ' ]) ,
+		(aBLBusinessPage widgets
 						flatCollect: [ :widget | 
 							('' , (self visit: widget) removeSuffix: ';')]).
 	class instanceVariables
