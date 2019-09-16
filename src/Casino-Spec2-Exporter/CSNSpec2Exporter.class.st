@@ -70,73 +70,12 @@ CSNSpec2Exporter >> recursiveLocalWidgetOfPage: aBLPage [
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitAttribute: aBLAttribute [
+CSNSpec2Exporter >> visitCSNAttribute: aBLAttribute [
 	^ ''
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitCell: aBLCell [
- 	^ aBLCell widget ifNil: [ '' ] ifNotNil: [ ' add: ', (self visit: aBLCell widget) ] 
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitInsideAContainerWithLocalVariable: localVariableName andContainedWidgets: containedWidgets [
-	localVariableName.
-	^ 'newColumn: [ :' , localVariableName
-		,
-			' |
-		'
-		,
-			(containedWidgets
-				flatCollect: [ :widget |
-					localVariableName , ' ' , ('' , (self visit: widget) removeSuffix: ';')
-						,
-							'.
-			' indentBy: 4 ])
-		,
-			'
-		]
-	'
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitLayout: aBLLayout [
-
-	^ self visitUIVerticalLayout: aBLLayout
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitMooseModel: aMooseModel [
-	aMooseModel allCSNPage do: [ :phase | self visit: phase ]
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitPage: aBLPage [
-	| class |
-	class := ComposablePresenter
-		subclass: self prefix , (self computeAcceptedNameForClassFrom: aBLPage name)
-		instanceVariableNames: '' , ((self recursiveLocalWidgetNameOfPage: aBLPage) flatCollect: [ :name | name uncapitalized , ' ' ])
-		classVariableNames: ''
-		package: self exportedPackageName , '-Page'.
-	class class
-		compile:
-			'open
-	<example>
-	^ self new openWithSpec'.
-	class class
-		compile:
-			'defaultSpec
-	<spec: #default>
-	^ ' ,
-				({aBLPage widgets . aBLPage businessPage} flatten flatCollect: [ :widget | ('' , (self visit: widget) removeSuffix: ';') ]).
-	class compile: 'title' , String crlf , String tab , '^ ' , ('''' , (self protectString: (aBLPage title ifNil: [ '' ])) , '''').
-	class instanceVariables do: [ :each | self createAccessorForVariable: each inClass: class ].
-	initializeWidgetsExporter exportInitializeWidgetOfPage: aBLPage inClass: class.
-	^ self visitWidget: aBLPage
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitPageMetier: aBLBusinessPage [
+CSNSpec2Exporter >> visitCSNBusinessPage: aBLBusinessPage [
 	| class |
 	class := ComposablePresenter
 		subclass: self prefix , (aBLBusinessPage name capitalized , aBLBusinessPage mooseID asString)
@@ -168,29 +107,15 @@ CSNSpec2Exporter >> visitPageMetier: aBLBusinessPage [
 	initializeWidgetsExporter
 		exportInitializeWidgetOfBusinessPage: aBLBusinessPage
 		inClass: class.
-	^ self visitWidget: aBLBusinessPage
+	^ self visitCSNWidget: aBLBusinessPage
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitUIAbsoluteHeight: aBLUIAbsoluteHeight [
-	^ aBLUIAbsoluteHeight attributeValue onlyNumbers
-		ifEmpty: [ self visitAttribute: aBLUIAbsoluteHeight ]
-		ifNotEmpty: [ aBLUIAbsoluteHeight name , ': ' , aBLUIAbsoluteHeight attributeValue onlyNumbers ]
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitUIAbsoluteWidth: aBLUIAbsoluteWidth [
-	^ aBLUIAbsoluteWidth attributeValue onlyNumbers
-		ifEmpty: [ self visitAttribute: aBLUIAbsoluteWidth ]
-		ifNotEmpty: [ aBLUIAbsoluteWidth name , ': ' , aBLUIAbsoluteWidth attributeValue onlyNumbers]
-]
-
-{ #category : #api }
-CSNSpec2Exporter >> visitUIContainer: aBLUIContainer [
+CSNSpec2Exporter >> visitCSNContainer: aBLUIContainer [
 	^ (aBLUIContainer layout
 		ifNotNil: [ self visit: aBLUIContainer layout ]
 		ifNil: [ 
-			self visitWidget: aBLUIContainer
+			self visitCSNWidget: aBLUIContainer
 			
 			"self visitInsideAContainerWithLocalVariable: ('row', (self computeAcceptedNameForVariableFrom: aBLUIContainer mooseName , aBLUIContainer mooseID asString) ) andContainedWidgets: aBLUIContainer widgets" "aBLUIContainer widgets flatCollect: [ :widget | '' , (self visit: widget) , ';' ]" ])
 		,
@@ -204,7 +129,12 @@ CSNSpec2Exporter >> visitUIContainer: aBLUIContainer [
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitUIHorizontalLayout: aBLUIHorizontalLayout [
+CSNSpec2Exporter >> visitCSNLCell: aBLCell [
+ 	^ aBLCell widget ifNil: [ '' ] ifNotNil: [ ' add: ', (self visit: aBLCell widget) ] 
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitCSNLHorizontalLayout: aBLUIHorizontalLayout [
 	^ '(SpecBoxLayout newHorizontal'
 		,
 			((aBLUIHorizontalLayout cell
@@ -215,7 +145,13 @@ CSNSpec2Exporter >> visitUIHorizontalLayout: aBLUIHorizontalLayout [
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitUIVerticalLayout: aBLUIVerticalLayout [
+CSNSpec2Exporter >> visitCSNLLayout: aBLLayout [
+
+	^ self visitCSNLVerticalLayout: aBLLayout
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitCSNLVerticalLayout: aBLUIVerticalLayout [
 	^ '(SpecBoxLayout newVertical'
 		,
 			((aBLUIVerticalLayout cell
@@ -226,6 +162,70 @@ CSNSpec2Exporter >> visitUIVerticalLayout: aBLUIVerticalLayout [
 ]
 
 { #category : #api }
-CSNSpec2Exporter >> visitWidget: aBLWidget [
+CSNSpec2Exporter >> visitCSNPage: aBLPage [
+	| class |
+	class := ComposablePresenter
+		subclass: self prefix , (self computeAcceptedNameForClassFrom: aBLPage name)
+		instanceVariableNames: '' , ((self recursiveLocalWidgetNameOfPage: aBLPage) flatCollect: [ :name | name uncapitalized , ' ' ])
+		classVariableNames: ''
+		package: self exportedPackageName , '-Page'.
+	class class
+		compile:
+			'open
+	<example>
+	^ self new openWithSpec'.
+	class class
+		compile:
+			'defaultSpec
+	<spec: #default>
+	^ ' ,
+				({aBLPage widgets . aBLPage businessPage} flatten flatCollect: [ :widget | ('' , (self visit: widget) removeSuffix: ';') ]).
+	class compile: 'title' , String crlf , String tab , '^ ' , ('''' , (self protectString: (aBLPage title ifNil: [ '' ])) , '''').
+	class instanceVariables do: [ :each | self createAccessorForVariable: each inClass: class ].
+	initializeWidgetsExporter exportInitializeWidgetOfPage: aBLPage inClass: class.
+	^ self visitCSNWidget: aBLPage
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitCSNUIAbsoluteHeight: aBLUIAbsoluteHeight [
+	^ aBLUIAbsoluteHeight attributeValue onlyNumbers
+		ifEmpty: [ self visitCSNAttribute: aBLUIAbsoluteHeight ]
+		ifNotEmpty: [ aBLUIAbsoluteHeight name , ': ' , aBLUIAbsoluteHeight attributeValue onlyNumbers ]
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitCSNUIAbsoluteWidth: aBLUIAbsoluteWidth [
+	^ aBLUIAbsoluteWidth attributeValue onlyNumbers
+		ifEmpty: [ self visitCSNAttribute: aBLUIAbsoluteWidth ]
+		ifNotEmpty: [ aBLUIAbsoluteWidth name , ': ' , aBLUIAbsoluteWidth attributeValue onlyNumbers]
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitCSNWidget: aBLWidget [
 	^ '#' , (self computeAcceptedNameForVariableFrom: aBLWidget name uncapitalized)
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitInsideAContainerWithLocalVariable: localVariableName andContainedWidgets: containedWidgets [
+	localVariableName.
+	^ 'newColumn: [ :' , localVariableName
+		,
+			' |
+		'
+		,
+			(containedWidgets
+				flatCollect: [ :widget |
+					localVariableName , ' ' , ('' , (self visit: widget) removeSuffix: ';')
+						,
+							'.
+			' indentBy: 4 ])
+		,
+			'
+		]
+	'
+]
+
+{ #category : #api }
+CSNSpec2Exporter >> visitMooseModel: aMooseModel [
+	aMooseModel allCSNPage do: [ :phase | self visit: phase ]
 ]

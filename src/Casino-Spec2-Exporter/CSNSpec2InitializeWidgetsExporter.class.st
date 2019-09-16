@@ -51,29 +51,30 @@ CSNSpec2InitializeWidgetsExporter >> recursiveLocalWidgetOfPage: aBLPage [
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitAttribute: aBLAttribute [
+CSNSpec2InitializeWidgetsExporter >> visitCSNAttribute: aBLAttribute [
 	^ ''
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitMooseModel: aMooseModel [
-	self shouldNotImplement 
-]
-
-{ #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitPage: aBLPage [
-	^ aBLPage name uncapitalized , ' := (self instantiate: '
-		,self mainExporter prefix, aBLPage name capitalized , ')'
-]
-
-{ #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitPageMetier: aBLBusinessPage [
+CSNSpec2InitializeWidgetsExporter >> visitCSNBusinessPage: aBLBusinessPage [
 	^ aBLBusinessPage name uncapitalized , ' := (self instantiate: '
 		, self mainExporter prefix , (aBLBusinessPage name capitalized, aBLBusinessPage mooseID asString) , ')'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIButton: aBLUIButton [
+CSNSpec2InitializeWidgetsExporter >> visitCSNContainer: aBLUIContainer [
+	^ (self computeWidgetName: aBLUIContainer)
+		, ' := (self instantiate: NullPresenter)'
+]
+
+{ #category : #visiting }
+CSNSpec2InitializeWidgetsExporter >> visitCSNPage: aBLPage [
+	^ aBLPage name uncapitalized , ' := (self instantiate: '
+		,self mainExporter prefix, aBLPage name capitalized , ')'
+]
+
+{ #category : #visiting }
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIButton: aBLUIButton [
 	^ (self computeWidgetName: aBLUIButton) , ' := self newButton '
 		,
 			(aBLUIButton attributes
@@ -82,30 +83,24 @@ CSNSpec2InitializeWidgetsExporter >> visitUIButton: aBLUIButton [
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIContainer: aBLUIContainer [
-	^ (self computeWidgetName: aBLUIContainer)
-		, ' := (self instantiate: NullPresenter)'
-]
-
-{ #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIDisabled: aBLUIDisabled [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIDisabled: aBLUIDisabled [
 	^ 'disable;'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIInput: aBLUIInput [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIInput: aBLUIInput [
 	^ (self computeWidgetName: aBLUIInput) , ' := self newTextInput '
 		, (aBLUIInput attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIInputCheckbox: aBLUIInputCheckbox [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIInputCheckbox: aBLUIInputCheckbox [
 	^ (self computeWidgetName: aBLUIInputCheckbox) , ' := self newCheckBox '
 		, (aBLUIInputCheckbox attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIInputPassword: aBLUIInputPassword [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIInputPassword: aBLUIInputPassword [
 	^ (self computeWidgetName: aBLUIInputPassword)
 		,
 			' := self newTextInput 
@@ -114,68 +109,73 @@ CSNSpec2InitializeWidgetsExporter >> visitUIInputPassword: aBLUIInputPassword [
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIInputText: aBLUIInputText [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIInputText: aBLUIInputText [
 	^ (self computeWidgetName: aBLUIInputText) , ' := self newTextInput '
 		, (aBLUIInputText attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUILabel: aBLUILabel [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUILabel: aBLUILabel [
 	^ 'label: ''' , (self protectString: aBLUILabel attributeValue) , ''';'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUILink: aBLUILink [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUILink: aBLUILink [
 	^ (self computeWidgetName: aBLUILink) , ' := self newLabel '
 		, (aBLUILink attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIList: aBLUIList [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIList: aBLUIList [
 	^ (self computeWidgetName: aBLUIList) , ' := self newList '
 		, (aBLUIList attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIParagraph: aBLUIParagraph [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIParagraph: aBLUIParagraph [
 	^ (self computeWidgetName: aBLUIParagraph) , ' := self newLabel '
 		, (aBLUIParagraph attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIPlaceholder: aBLUIPlaceholder [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIPlaceholder: aBLUIPlaceholder [
 	^ 'placeholder: ''' , (self protectString: aBLUIPlaceholder attributeValue) , ''';'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUISelect: aBLUISelect [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUISelect: aBLUISelect [
 	^ (self computeWidgetName: aBLUISelect) , ' := self newDropList '
 		, (aBLUISelect attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUITextarea: aBLUITextarea [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUITextarea: aBLUITextarea [
 	^  (self computeWidgetName: aBLUITextarea) , ' := self newText '
 		, (aBLUITextarea attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUITitle: aBLUITitle [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUITitle: aBLUITitle [
 	^ 'help: ''' , (self protectString: aBLUITitle attributeValue) , ''';'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUITree: aBLUITree [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUITree: aBLUITree [
 	^  (self computeWidgetName: aBLUITree) , ' := self newTable '
 		, (aBLUITree attributes flatCollect: [ :attribute | (self visit: attribute) , String crlf , String tab , String tab ]) , 'yourself'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitUIValue: aBLUIValue [
+CSNSpec2InitializeWidgetsExporter >> visitCSNUIValue: aBLUIValue [
 	^ 'text: ''' , (self protectString: aBLUIValue attributeValue) , ''';'
 ]
 
 { #category : #visiting }
-CSNSpec2InitializeWidgetsExporter >> visitWidget: aBLWidget [
+CSNSpec2InitializeWidgetsExporter >> visitCSNWidget: aBLWidget [
 	^ ' "not handle -->  ' , (self computeWidgetName: aBLWidget) , '"'
+]
+
+{ #category : #visiting }
+CSNSpec2InitializeWidgetsExporter >> visitMooseModel: aMooseModel [
+	self shouldNotImplement 
 ]
