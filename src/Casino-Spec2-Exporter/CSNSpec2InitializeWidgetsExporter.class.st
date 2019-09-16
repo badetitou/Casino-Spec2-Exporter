@@ -41,13 +41,13 @@ CSNSpec2InitializeWidgetsExporter >> protectString: aString [
 
 { #category : #accessing }
 CSNSpec2InitializeWidgetsExporter >> recursiveLocalWidgetOfBLBusinessPage: aBLBusinessPage [
-	^ (aBLBusinessPage widgets collect: #localWidgets) flattened
+	^ (aBLBusinessPage widgets collect: [ :widgetInBusiness | widgetInBusiness allToScope: CSNWidget until: [ :widget | widget isKindOf: CSNBusinessPage ] ]) flattened
 		reject: [ :widget | widget isKindOf: CSNUIPanel ]
 ]
 
 { #category : #accessing }
 CSNSpec2InitializeWidgetsExporter >> recursiveLocalWidgetOfPage: aBLPage [
-	^ aBLPage localWidgets flattened reject: [:widget | widget isKindOf: CSNUIPanel ]
+	^ (aBLPage allToScope: CSNWidget until: [:widget | widget isKindOf: CSNBusinessPage] ) flattened reject: [:widget | widget = aBLPage or: [ widget isKindOf: CSNUIPanel ] ]
 ]
 
 { #category : #visiting }

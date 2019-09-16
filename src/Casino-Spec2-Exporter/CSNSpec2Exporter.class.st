@@ -60,13 +60,13 @@ CSNSpec2Exporter >> recursiveLocalWidgetNameOfPage: aBLPage [
 
 { #category : #api }
 CSNSpec2Exporter >> recursiveLocalWidgetOfBLBusinessPage: aBLBusinessPage [
-	^ (aBLBusinessPage widgets collect: #localWidgets) flattened
+	^ (aBLBusinessPage widgets collect: [ :widget | widget allToScope: CSNWidget until: [ :widgetInBusiness | widgetInBusiness isKindOf: CSNBusinessPage ] ]) flattened
 		reject: [ :widget | widget isKindOf: CSNUIPanel ]
 ]
 
 { #category : #api }
 CSNSpec2Exporter >> recursiveLocalWidgetOfPage: aBLPage [
-	^ aBLPage localWidgets flattened reject: [:widget | widget isKindOf: CSNUIPanel ]
+	^ (aBLPage allToScope: CSNWidget until: [:widget | widget isKindOf: CSNBusinessPage] ) flattened reject: [:widget | widget = aBLPage or: [ widget isKindOf: CSNUIPanel ] ]
 ]
 
 { #category : #api }
@@ -77,7 +77,7 @@ CSNSpec2Exporter >> visitCSNAttribute: aBLAttribute [
 { #category : #api }
 CSNSpec2Exporter >> visitCSNBusinessPage: aBLBusinessPage [
 	| class |
-	class := ComposablePresenter
+	class := SpPresenter
 		subclass: self prefix , (aBLBusinessPage name capitalized , aBLBusinessPage mooseID asString)
 		instanceVariableNames:
 			''
@@ -135,13 +135,13 @@ CSNSpec2Exporter >> visitCSNLCell: aBLCell [
 
 { #category : #api }
 CSNSpec2Exporter >> visitCSNLHorizontalLayout: aBLUIHorizontalLayout [
-	^ '(SpecBoxLayout newHorizontal'
+	^ '(SpBoxLayout newHorizontal'
 		,
 			((aBLUIHorizontalLayout cell
 				flatCollect: [ :cell | 
 					' ' , ('' , (self visit: cell) removeSuffix: ';')
 						,
-							';' indentBy: 4 ]) removeLast; yourself), ')'
+							';' indentBy: 4 ])), ' yourself)'
 ]
 
 { #category : #api }
@@ -152,7 +152,7 @@ CSNSpec2Exporter >> visitCSNLLayout: aBLLayout [
 
 { #category : #api }
 CSNSpec2Exporter >> visitCSNLVerticalLayout: aBLUIVerticalLayout [
-	^ '(SpecBoxLayout newVertical'
+	^ '(SpBoxLayout newVertical'
 		,
 			((aBLUIVerticalLayout cell
 				flatCollect: [ :cell | 
@@ -164,7 +164,7 @@ CSNSpec2Exporter >> visitCSNLVerticalLayout: aBLUIVerticalLayout [
 { #category : #api }
 CSNSpec2Exporter >> visitCSNPage: aBLPage [
 	| class |
-	class := ComposablePresenter
+	class := SpPresenter
 		subclass: self prefix , (self computeAcceptedNameForClassFrom: aBLPage name)
 		instanceVariableNames: '' , ((self recursiveLocalWidgetNameOfPage: aBLPage) flatCollect: [ :name | name uncapitalized , ' ' ])
 		classVariableNames: ''
